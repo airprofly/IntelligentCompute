@@ -58,6 +58,24 @@ exp_2_1_mnist_mlp/
 └── *.npz                    # 💾 训练好的模型参数
 ```
 
+#### 🔧 环境要求
+
+| 依赖 | 最低版本 |
+|------|----------|
+| Python | 3.7+ |
+| NumPy | 1.19+ |
+
+```bash
+# 创建虚拟环境（推荐）
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# 或
+venv\Scripts\activate     # Windows
+
+# 安装依赖
+pip install numpy
+```
+
 #### 🚀 运行方式
 
 ```bash
@@ -75,24 +93,6 @@ python main_exp_2_1.py
 ├─ 训练集准确率: 99.5%
 ├─ 测试集准确率: 98.2%
 └─ 训练时长: ~15 分钟 (CPU)
-```
-
-#### 🔧 环境要求
-
-| 依赖 | 最低版本 |
-|------|----------|
-| Python | 3.7+ |
-| NumPy | 1.19+ |
-
-```bash
-# 创建虚拟环境（推荐）
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# 或
-venv\Scripts\activate     # Windows
-
-# 安装依赖
-pip install numpy
 ```
 
 </details>
