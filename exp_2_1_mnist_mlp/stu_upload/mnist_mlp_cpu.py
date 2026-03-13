@@ -7,7 +7,7 @@ import time
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from layers_1 import FullyConnectedLayer, ReLULayer, SoftmaxLossLayer
 
-MNIST_DIR = "../mnist_data"
+MNIST_DIR = "./mnist_data"
 TRAIN_DATA = "train-images-idx3-ubyte"
 TRAIN_LABEL = "train-labels-idx1-ubyte"
 TEST_DATA = "t10k-images-idx3-ubyte"
