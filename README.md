@@ -1,7 +1,6 @@
 <div align="center">
 
 # 🧠 智能计算课程实验
-
 ### Intelligent Computing Course Experiments
 
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-black?logo=github)](https://github.com/airprofly/IntelligentCompute) [![Star](https://img.shields.io/github/stars/airprofly/IntelligentCompute?style=social)](https://github.com/airprofly/IntelligentCompute/stargazers) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -20,50 +19,43 @@
 
 ---
 
-## 📚 实验目录
+## 📦 实验模块
+
+本课程项目包含以下实验模块：
+
+| 实验模块 | 简介 | 状态 | README |
+|---------|------|------|--------|
+| **实验 2.1** | 基于 4 层 MLP 的 MNIST 手写数字识别，准确率 98%+ | ✅ 已完成 | [查看详情](./exp_2_1_mnist_mlp/README.md) |
 
 <details>
-<summary><b>🔢 实验 2.1：基于多层感知机的 MNIST 手写数字识别</b> <code>✅ 已完成</code></summary>
+<summary><b>🔮 未来计划</b></summary>
 
-#### 📌 实验概览
+- 🚧 实验 2.2：卷积神经网络（CNN）实现
+- 🚧 实验 3.1：循环神经网络（RNN）与序列建模
+- 🚧 实验 3.2：注意力机制与 Transformer
+- 📅 更多实验持续更新中...
 
-| 项目 | 内容 |
-|------|------|
-| **实验目标** | 从零实现四层多层感知机（MLP），完成 MNIST 手写数字分类 |
-| **网络结构** | 784 → 256 → 128 → 64 → 10 |
-| **训练轮数** | 20 Epochs |
-| **准确率** | **98%+** |
-| **技术栈** | NumPy | Python |
+</details>
 
-#### 🛠️ 实验内容
+---
 
-- ✅ 实现 `FullyConnectedLayer`（全连接层）
-- ✅ 实现 `ReLULayer`（ReLU 激活层）
-- ✅ 实现 `SoftmaxLossLayer`（Softmax 损失层）
-- ✅ 前向传播计算
-- ✅ 反向传播梯度计算
-- ✅ 参数更新优化
+## 🛠️ 技术栈
 
-#### 📁 目录结构
-
-```
-exp_2_1_mnist_mlp/
-├── main_exp_2_1.py          # 🔧 主程序入口
-├── stu_upload/              # 📝 学生需完成的代码
-│   ├── layers_1.py          # 🔲 网络层实现
-│   ├── mnist_mlp_cpu.py     # 🔲 MLP 模型实现
-│   └── __init__.py
-├── mnist_data/              # 📊 MNIST 数据集
-├── logs/                    # 📄 训练日志
-└── *.npz                    # 💾 训练好的模型参数
-```
-
-#### 🔧 环境要求
-
-| 依赖 | 最低版本 |
+| 技术 | 版本/说明 |
 |------|----------|
-| Python | 3.7+ |
-| NumPy | 1.19+ |
+| **Python** | 3.7+ |
+| **NumPy** | 1.19+ - 用于数值计算和矩阵运算 |
+
+---
+
+## 🔧 环境要求
+
+### 运行环境
+
+- Python 3.7 或更高版本
+- NumPy 1.19 或更高版本
+
+### 安装依赖
 
 ```bash
 # 创建虚拟环境（推荐）
@@ -73,29 +65,66 @@ source venv/bin/activate  # Linux/Mac
 venv\Scripts\activate     # Windows
 
 # 安装依赖
-pip install numpy
+pip install numpy>=1.19
 ```
 
-#### 🚀 运行方式
+---
+
+## 🚀 快速开始
+
+### 1. 克隆仓库
+
+```bash
+git clone https://github.com/airprofly/IntelligentCompute.git
+cd IntelligentCompute
+```
+
+### 2. 选择实验模块
 
 ```bash
 # 进入实验目录
 cd exp_2_1_mnist_mlp
 
+# 查看详细说明
+cat README.md
+
 # 运行实验
 python main_exp_2_1.py
 ```
 
-#### 📊 实验结果
+> 💡 **提示**：每个实验模块都有独立的 README，包含详细的实现说明、环境配置和运行方法。
 
-```
-四层网络结构 (256-128-64)
-├─ 训练集准确率: 99.5%
-├─ 测试集准确率: 98.2%
-└─ 训练时长: ~15 分钟 (CPU)
+---
+
+## 📚 学习路径
+
+本课程实验按照以下路径设计：
+
+```text
+基础篇
+└── 实验 2.1：多层感知机（MLP）+ MNIST 分类
+    ├── 全连接层实现
+    ├── ReLU 激活函数
+    ├── Softmax 损失函数
+    └── 反向传播算法
+
+进阶篇（计划中）
+├── 卷积神经网络（CNN）
+├── 循环神经网络（RNN）
+└── 注意力机制与 Transformer
 ```
 
-</details>
+---
+
+## 📝 课程目标
+
+通过本课程实验，你将掌握：
+
+- ✅ 神经网络的数学原理（矩阵运算、链式法则）
+- ✅ 前向传播和反向传播的实现细节
+- ✅ 参数梯度的计算和更新方法
+- ✅ 深度学习框架（如 PyTorch、TensorFlow）背后的工作机制
+- ✅ 经典数据集（MNIST、CIFAR-10 等）的处理方式
 
 ---
 
@@ -103,3 +132,12 @@ python main_exp_2_1.py
 
 本项目采用 [MIT 许可证](https://opensource.org/licenses/MIT)。
 
+---
+
+<div align="center">
+
+**智能计算课程实验项目**
+
+Made with ❤️ by [IntelligentCompute Team](https://github.com/airprofly/IntelligentCompute)
+
+</div>
