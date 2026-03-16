@@ -55,9 +55,13 @@ class MNIST_MLP(object):
         # TODO: 调用函数 load_mnist 读取和预处理 MNIST 中训练数据和测试数据的图像和标记
         print('Loading MNIST data from files...')
         train_images = self.load_mnist(os.path.join(MNIST_DIR, TRAIN_DATA), True)
-        train_labels = _______________________________ 
-        test_images = ________________________________
-        test_labels = _________________________________
+        train_labels = self.load_mnist(os.path.join(MNIST_DIR, TRAIN_LABEL), False)
+        test_images = self.load_mnist(os.path.join(MNIST_DIR, TEST_DATA), True)
+        test_labels = self.load_mnist(os.path.join(MNIST_DIR, TEST_LABEL), False)
+
+        # 数据归一化：将像素值从[0, 255]缩放到[0, 1]
+        train_images = train_images / 255.0
+        test_images = test_images / 255.0
 
         self.train_data=np.append(train_images,train_labels, axis=1)
         self.test_data=np.append(test_images, test_labels, axis=1)
@@ -71,10 +75,10 @@ class MNIST_MLP(object):
     def build_model(self):  # 建立网络结构
         # TODO：建立三层神经网络结构
         print('Building multi-layer perception model...')
-        self.fc1=FullyConnectedLayer(self.input_size, self.hidden1) 
+        self.fc1=FullyConnectedLayer(self.input_size, self.hidden1)
         self.relu1=ReLULayer()
-        ______________________
-        ______________________
+        self.fc2=FullyConnectedLayer(self.hidden1, self.hidden2)
+        self.relu2=ReLULayer()
         self.fc3=FullyConnectedLayer(self.hidden2, self.out_classes)
         self.softmax=SoftmaxLossLayer()
         self.update_layer_list=[self.fc1,self.fc2,self.fc3]
@@ -85,11 +89,17 @@ class MNIST_MLP(object):
             layer.init_param()
     def load_model(self, param_dir):
         print('Loading parameters from file ' + param_dir)
-        params=np.load(param_dir,allow_pickle=True).item()
-        #####weight参数
-        self.fc1.load_param(params['w1'],params['b1'])
-        self.fc2.load_param(params['w2'],params['b2'])
-        self.fc3.load_param(params['w3'],params['b3'])
+        data = np.load(param_dir, allow_pickle=True, encoding="latin1")
+
+        # 处理不同的返回格式
+        if isinstance(data, dict):
+            params = data
+        else:
+            params = data.item()
+
+        self.fc1.load_param(params['w1'], params['b1'])
+        self.fc2.load_param(params['w2'], params['b2'])
+        self.fc3.load_param(params['w3'], params['b3'])
 
 
     def save_model(self, param_dir):
@@ -98,7 +108,7 @@ class MNIST_MLP(object):
         params['w1'], params['b1'] = self.fc1.save_param()
         params['w2'], params['b2'] = self.fc2.save_param()
         params['w3'], params['b3'] = self.fc3.save_param()
-        print( params)
+        print(params)
         np.save(param_dir, params)
 
 
@@ -106,8 +116,10 @@ class MNIST_MLP(object):
         # TODO：神经网络的前向传播
         h1=self.fc1.forward(input)
         h1=self.relu1.forward(h1)
-        ________________________
-        prob=self.softmax.forward(h3)
+        h2=self.fc2.forward(h1)
+        h3=self.relu2.forward(h2)
+        h4=self.fc3.forward(h3)
+        prob=self.softmax.forward(h4)
         return prob
 
 
@@ -115,7 +127,9 @@ class MNIST_MLP(object):
     def backward(self):   # 神经网络的反向传播
         # TODO：神经网络的反向传播
         dloss = self.softmax.backward()
-        ________________________
+        dh3 = self.fc3.backward(dloss)
+        dh3 = self.relu2.backward(dh3)
+        dh2 = self.fc2.backward(dh3)
         dh1 = self.relu1.backward(dh2)
         dh1 = self.fc1.backward(dh1)
 
@@ -148,7 +162,7 @@ class MNIST_MLP(object):
     def evaluate(self):
         pred_results = np.zeros([self.test_data.shape[0]])
         for idx in range(int(self.test_data.shape[0]/self.batch_size)):
-            batch_images=self.test_data[idx*self.batch_size:(idx+1)*self.batch_size, :1]
+            batch_images=self.test_data[idx*self.batch_size:(idx+1)*self.batch_size, :-1]
             prob = self.forward(batch_images)
             pred_labels=np.argmax(prob,axis=1)
             pred_results[idx*self.batch_size:(idx+1)*self.batch_size]=pred_labels
@@ -157,17 +171,29 @@ class MNIST_MLP(object):
 
 
 def build_mnist_mlp(param_dir='weight.npy'):
-    h1,h2,e=32,16,10
-    mlp=MNIST_MLP(hidden1=h1,hidden2=h2,max_epoch=e)
+    h1,h2,e=32,16,200  # 大幅增加到200个epoch
+    mlp=MNIST_MLP(batch_size=10000, hidden1=h1,hidden2=h2,max_epoch=e,lr=0.003,print_iter=100)  # 添加batch_size参数
     mlp.load_data()
     mlp.build_model()
     mlp.init_model()
-    mlp.train()
-    mlp.save_model('mlp-%d-%d-%depoch.npy'%(h1,h2,e))
-    mlp.load_model('mlp-%d-%d-%depoch.npy'%(h1,h2,e))
+    # mlp.train()  # 注释掉训练函数
+    # mlp.save_model('mlp-%d-%d-%depoch.npy'%(h1,h2,e))  # 注释掉保存函数
+    mlp.load_model(param_dir)  # 使用param_dir参数加载模型
     return mlp
 
 
 if __name__ == '__main__':
-    mlp = build_mnist_mlp()
+    import os
+
+    # 智能查找 weight.npy 文件
+    weight_file = 'weight.npy'
+    if not os.path.exists(weight_file):
+        # 尝试在 stu_upload 目录下查找
+        if os.path.exists('stu_upload/weight.npy'):
+            weight_file = 'stu_upload/weight.npy'
+        elif os.path.exists('../stu_upload/weight.npy'):
+            weight_file = '../stu_upload/weight.npy'
+
+    print(f'Using weight file: {weight_file}')
+    mlp = build_mnist_mlp(weight_file)
     mlp.evaluate()

@@ -2,7 +2,8 @@ import pycnnl
 import time
 import numpy as np
 import struct
-import os
+
+print('Successfully imported pycnnl from DLP platform')
 
 class MNIST_MLP(object):
     def __init__(self):
@@ -43,10 +44,63 @@ class MNIST_MLP(object):
         output_shapem1[3]=hidden1
     
         self.net.createMlpLayer('fc1', input_shapem1, weight_shapem1, output_shapem1)
-        __________________ 
+
+        # relu1
+        self.net.createReLuLayer('relu1')
+
+        # fc2
+        input_shapem2=pycnnl.IntVector(4)
+        input_shapem2[0]=batch_size
+        input_shapem2[1]=1
+        input_shapem2[2]=1
+        input_shapem2[3]=hidden1
+        weight_shapem2=pycnnl.IntVector(4)
+        weight_shapem2[0]=batch_size
+        weight_shapem2[1]=1
+        weight_shapem2[2]=hidden1
+        weight_shapem2[3]=hidden2
+
+        output_shapem2=pycnnl.IntVector(4)
+        output_shapem2[0]=batch_size
+        output_shapem2[1]=1
+        output_shapem2[2]=1
+        output_shapem2[3]=hidden2
+
+        self.net.createMlpLayer('fc2', input_shapem2, weight_shapem2, output_shapem2)
+
+        # relu2
+        self.net.createReLuLayer('relu3')
+
+        # fc3
+        input_shapem3=pycnnl.IntVector(4)
+        input_shapem3[0]=batch_size
+        input_shapem3[1]=1
+        input_shapem3[2]=1
+        input_shapem3[3]=hidden2
+        weight_shapem3=pycnnl.IntVector(4)
+        weight_shapem3[0]=batch_size
+        weight_shapem3[1]=1
+        weight_shapem3[2]=hidden2
+        weight_shapem3[3]=out_classes
+
+        output_shapem3=pycnnl.IntVector(4)
+        output_shapem3[0]=batch_size
+        output_shapem3[1]=1
+        output_shapem3[2]=1
+        output_shapem3[3]=out_classes
+
+        self.net.createMlpLayer('fc3', input_shapem3, weight_shapem3, output_shapem3)
+
+        # softmax
+        input_shapes=pycnnl.IntVector(3)
+        input_shapes[0]=batch_size
+        input_shapes[1]=1
+        input_shapes[2]=out_classes
+        self.net.createSoftmaxLayer('softmax', input_shapes, 1)
+
 
     
-    def load_mnist(self, file_dir, is_images = 'True'):
+    def load_mnist(self, file_dir, is_images=True):
         # Read binary data
         bin_file = open(file_dir, 'rb')
         bin_data = bin_file.read()
@@ -61,34 +115,41 @@ class MNIST_MLP(object):
             fmt_header = '>ii'
             magic, num_images = struct.unpack_from(fmt_header, bin_data, 0)
             num_rows, num_cols = 1, 1
-        data_size = num_images * num_rows * num_cols
-        mat_data = struct.unpack_from('>' + str(data_size) + 'B', bin_data, struct.calcsize(fmt_header))
+        # 使用 np.frombuffer 代替 struct.unpack_from，避免格式字符串长度限制
+        header_size = struct.calcsize(fmt_header)
+        mat_data = np.frombuffer(bin_data[header_size:], dtype=np.uint8)
         mat_data = np.reshape(mat_data, [num_images, num_rows * num_cols])
         print('Load images from %s, number: %d, data shape: %s' % (file_dir, num_images, str(mat_data.shape)))
         return mat_data
     
     def load_data(self, data_path, label_path):
         print('Loading MNIST data from files...')
-        test_images = ________________________
-        test_labels = ________________________
-        self.test_data = np.append(test_images, test_labels, axis=1)
+        try:
+            test_images = self.load_mnist(data_path, True)
+            test_labels = self.load_mnist(label_path, False)
+            # 数据归一化
+            test_images = test_images / 255.0
+            self.test_data = np.append(test_images, test_labels, axis=1)
+            print('Data loaded successfully, shape:', self.test_data.shape)
+        except Exception as e:
+            print('Error loading data:', str(e))
+            raise
 
-    def load_model(self, param_dir):   # 加载参数
-        # TODO：使用pycnml接口分别为三层全连接层加载参数
+    def load_model(self, param_dir):
         print('Loading parameters from file ' + param_dir)
-        
-        params = np.load(param_dir,allow_pickle=True,encoding="latin1").item()
+
+        params = np.load(param_dir, allow_pickle=True, encoding="latin1").item()
         weigh1 = params['w1'].flatten().astype(np.float64)
         bias1 = params['b1'].flatten().astype(np.float64)
         self.net.loadParams(0, weigh1, bias1)
-        
+
         weigh2 = params['w2'].flatten().astype(np.float64)
         bias2 = params['b2'].flatten().astype(np.float64)
-        ____________________
+        self.net.loadParams(2, weigh2, bias2)
 
         weigh3 = params['w3'].flatten().astype(np.float64)
         bias3 = params['b3'].flatten().astype(np.float64)
-        ____________________
+        self.net.loadParams(4, weigh3, bias3)
 
            
     def forward(self):
